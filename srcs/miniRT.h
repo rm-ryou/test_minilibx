@@ -37,7 +37,7 @@ typedef struct	s_color
 t_vector	new_vector(double x, double y, double z);
 t_vector	add(t_vector a, t_vector b);
 t_vector	sub(t_vector a, t_vector b);
-t_vector	mult(t_vector a, int n);
+t_vector	mult(t_vector a, double n);
 double		dot(t_vector a, t_vector b);
 double		mag(t_vector a);
 double		mag_sqrt(t_vector a);

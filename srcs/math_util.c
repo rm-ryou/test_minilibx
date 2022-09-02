@@ -30,7 +30,7 @@ t_vector	sub(t_vector a, t_vector b)
 	return (new);
 }
 
-t_vector	mult(t_vector a, int n)
+t_vector	mult(t_vector a, double n)
 {
 	t_vector	new;
 

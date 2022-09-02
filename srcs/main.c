@@ -8,7 +8,7 @@ static void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-int	test_create_trgb(t_color *color)
+int	create_trgb(t_color *color)
 {
 	return (color->red << 16 | color->green << 8 | color->blue);
 }
@@ -30,6 +30,8 @@ int	main()
 	t_vector	point_of_screen = new_vector(0, 0, 0);
 	double		sphere_r = 1.0;
 
+	t_vector	point_of_light = new_vector(-5, 5, -5);
+
 	set_mlx(&data);
 
 	for (double y = 0; y < DISPLAY_H; y++) {
@@ -45,10 +47,45 @@ int	main()
 			double	C = mag_sqrt(tmp) - pow(sphere_r, 2);
 
 			double	D = pow(B, 2) - 4 * A * C;
-			if (D >= 0)
+
+			double	t = -1;
+			if (D == 0)
+				t = -B / (2 * A);
+			else if (D > 0) {
+				double	t1 = (-B - sqrt(D)) / (2 * A);
+				double	t2 = (-B + sqrt(D)) / (2 * A);
+				if (t1 > 0 && t2 > 0)
+					t = t1 < t2 ? t1: t2;
+				else if (t1 <= 0 && t2 <= 0)
+					t = -1;
+				else
+					t = t1 > t2 ? t1: t2;
+			}
+			if (t > 0) {
+				t_vector	point_of_intersection = add(eye_vec, mult(eye_dir, t));
+				// 入射ベクトル
+				t_vector	dir_of_light = normalize(sub(point_of_light, point_of_intersection));
+				// 法線ベクトル
+				t_vector	normal_vec = normalize(sub(point_of_intersection, sphere_vec));
+
+				double	dot_of_light_normal = dot(normal_vec, dir_of_light);
+				if (dot_of_light_normal < 0)	dot_of_light_normal = 0;
+				if (dot_of_light_normal > 1)	dot_of_light_normal = 1;
+				t_color		color;
+				color.red = 255 * dot_of_light_normal;
+				color.green = 255 * dot_of_light_normal;
+				color.blue = 255 * dot_of_light_normal;
+
+				my_mlx_pixel_put(&data, x, y, create_trgb(&color));
+			} else
+				my_mlx_pixel_put(&data, x, y, 0x0000FF);
+			
+
+
+/*			if (D >= 0)
 				my_mlx_pixel_put(&data, x, y, 0xFF0000);
 			else
-				my_mlx_pixel_put(&data, x, y, 0x0000FF);
+				my_mlx_pixel_put(&data, x, y, 0x0000FF);*/
 		}
 	}
 	mlx_put_image_to_window(data.mlx, data.mlx_win, data.img, 0, 0);
