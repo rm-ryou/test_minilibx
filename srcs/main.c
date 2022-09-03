@@ -89,9 +89,6 @@ int	main()
 				if (dot_of_light_normal > 0) {
 					t_vector	reflect_vec = sub(mult(normal_vec, 2 * dot_of_light_normal), dir_of_light);
 					t_vector	rev_view_vec = normalize(mult(eye_dir, -1));
-					/*rev_view_vec.x = -eye_dir.x;
-					rev_view_vec.y = -eye_dir.y;
-					rev_view_vec.z = -eye_dir.z;*/
 
 					double	dot_reflect_rev_view = dot(reflect_vec, rev_view_vec);
 					if (dot_reflect_rev_view <= 0)	dot_reflect_rev_view = 0;
@@ -104,8 +101,8 @@ int	main()
 
 				t_color		color;
 				color.red = 255 * reflect_radiance;
-				color.green = 0;//255 * reflect_radiance;
-				color.blue = 0;//255 * reflect_radiance;
+				color.green = 0;
+				color.blue = 0;
 
 				my_mlx_pixel_put(&data, x, y, create_trgb(&color));
 			} else
