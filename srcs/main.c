@@ -32,12 +32,26 @@ int	main()
 
 	t_vector	point_of_light = new_vector(-5, 5, -5);
 
+	// branc -> simpleShading
+	// 環境光反射係数
+	double	ambient = 0.01;
+	// 拡散反射係数
+	double	diffusion_reflection = 0.69;
+	// 鏡面反射係数
+	double	specular_reflection = 0.3;
+	// 光沢度
+	double	gloss_level = 8;
+	// 環境光の強度
+	double	ambient_intensity = 0.1;
+	// 光源の強度
+	double	light_intensity = 1.0;
+
 	set_mlx(&data);
 
 	for (double y = 0; y < DISPLAY_H; y++) {
-		point_of_screen.y = ((-2 * y) / (DISPLAY_H - 1)) + 1.0;
+		point_of_screen.y = ((-2 * y) / ((double)DISPLAY_H - 1)) + 1.0;
 		for (double x = 0; x < DISPLAY_W; x++) {
-			point_of_screen.x = ((2 * x) / (DISPLAY_W - 1)) - 1.0;
+			point_of_screen.x = ((2 * x) / ((double)DISPLAY_W - 1)) - 1.0;
 
 			t_vector	eye_dir = normalize(sub(point_of_screen, eye_vec));
 			t_vector	tmp = sub(eye_vec, sphere_vec);
@@ -54,14 +68,11 @@ int	main()
 			else if (D > 0) {
 				double	t1 = (-B - sqrt(D)) / (2 * A);
 				double	t2 = (-B + sqrt(D)) / (2 * A);
-				if (t1 > 0 && t2 > 0)
-					t = t1 < t2 ? t1: t2;
-				else if (t1 <= 0 && t2 <= 0)
-					t = -1;
-				else
-					t = t1 > t2 ? t1: t2;
+				t = (t1 > 0 && t2 > 0) ? (t1 < t2 ? t1: t2): (t1 > t2 ? t1: t2);
 			}
 			if (t > 0) {
+				double	ambient_radiance = ambient * ambient_intensity;
+				// 放射輝度
 				t_vector	point_of_intersection = add(eye_vec, mult(eye_dir, t));
 				// 入射ベクトル
 				t_vector	dir_of_light = normalize(sub(point_of_light, point_of_intersection));
@@ -69,12 +80,32 @@ int	main()
 				t_vector	normal_vec = normalize(sub(point_of_intersection, sphere_vec));
 
 				double	dot_of_light_normal = dot(normal_vec, dir_of_light);
-				if (dot_of_light_normal < 0)	dot_of_light_normal = 0;
-				if (dot_of_light_normal > 1)	dot_of_light_normal = 1;
+				if (dot_of_light_normal <= 0)	dot_of_light_normal = 0;
+				if (dot_of_light_normal >= 1)	dot_of_light_normal = 1;
+
+				double	diffusion_radiance = diffusion_reflection * light_intensity * dot_of_light_normal;
+
+				double	specular_radiance = 0;
+				if (dot_of_light_normal > 0) {
+					t_vector	reflect_vec = sub(mult(normal_vec, 2 * dot_of_light_normal), dir_of_light);
+					t_vector	rev_view_vec = normalize(mult(eye_dir, -1));
+					/*rev_view_vec.x = -eye_dir.x;
+					rev_view_vec.y = -eye_dir.y;
+					rev_view_vec.z = -eye_dir.z;*/
+
+					double	dot_reflect_rev_view = dot(reflect_vec, rev_view_vec);
+					if (dot_reflect_rev_view <= 0)	dot_reflect_rev_view = 0;
+					if (dot_reflect_rev_view >= 1)	dot_reflect_rev_view = 1;
+					specular_radiance = specular_reflection * light_intensity * pow(dot_reflect_rev_view, gloss_level);
+				}
+				double	reflect_radiance = ambient_radiance + diffusion_radiance + specular_radiance;
+				if (reflect_radiance < 0)	reflect_radiance = 0;
+				if (reflect_radiance > 1)	reflect_radiance = 1;
+
 				t_color		color;
-				color.red = 255 * dot_of_light_normal;
-				color.green = 255 * dot_of_light_normal;
-				color.blue = 255 * dot_of_light_normal;
+				color.red = 255 * reflect_radiance;
+				color.green = 0;//255 * reflect_radiance;
+				color.blue = 0;//255 * reflect_radiance;
 
 				my_mlx_pixel_put(&data, x, y, create_trgb(&color));
 			} else
