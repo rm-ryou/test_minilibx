@@ -3,6 +3,7 @@
 
 # include <math.h>
 # include <stdio.h>
+# include <stdlib.h>
 # include <limits.h>
 # include <stdbool.h>
 # include "../mlx_linux/mlx.h"

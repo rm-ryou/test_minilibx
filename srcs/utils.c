@@ -67,7 +67,6 @@ bool	get_nearest_shape(t_scene *scene, t_ray *ray, t_objects **object, t_point_i
 			nearest_intp = intp;
 			if (exit_once_found)
 				break ;
-		//	nearest_intp.distance = intp.distance;
 		}
 	}
 	if (nearest_shape) {
@@ -102,8 +101,8 @@ void	raytrace(t_scene *scene, t_ray *ray, t_color *color)
 		if (nl_dot >= 1)	nl_dot = 1;
 
 
-		double		distance_light_dir = mag(sub(scene->light->light_position, point_of_object.position)) - (double)(1 / 32);
-		t_vector	shadow_ray_vec = add(point_of_object.position, mult(light_dir, (double)1 / 32));
+		double		distance_light_dir = mag(sub(scene->light->light_position, point_of_object.position)) - (double)(1 / 128);
+		t_vector	shadow_ray_vec = add(point_of_object.position, mult(light_dir, (double)1 / 128));
 		t_ray		shadow_ray;
 		shadow_ray.start = shadow_ray_vec;
 		shadow_ray.direction = light_dir;
